@@ -39,8 +39,18 @@ public class ProducerExample {
             .build();
         try {
             // Send the message, paying attention to the sending result and catching exceptions.
-            SendReceipt sendReceipt = producer.send(message);
-            logger.info("Send message successfully, messageId={}", sendReceipt.getMessageId());
+            // Send the message every 5 seconds in a loop
+            while (true) {
+                SendReceipt sendReceipt = producer.send(message);
+                logger.info("Send message successfully, messageId={}", sendReceipt.getMessageId());
+                try {
+                    Thread.sleep(5000);
+                } catch (InterruptedException ie) {
+                    Thread.currentThread().interrupt();
+                    logger.warn("Producer thread interrupted", ie);
+                    break;
+                }
+            }
         } catch (ClientException e) {
             logger.error("Failed to send message", e);
         }
