@@ -16,35 +16,12 @@ import org.apache.rocketmq.client.apis.message.MessageView;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static com.learning.rocketmq.util.RocketMQConfig.printMessageView;
+
 public class ConsumerExample {
     private static final Logger logger = LoggerFactory.getLogger(ConsumerExample.class);
 
     private ConsumerExample() {
-    }
-
-    public static String printMessageView(MessageView messageView) {
-        ByteBuffer bodyBuffer = messageView.getBody();
-        byte[] bodyBytes = new byte[bodyBuffer.remaining()];
-        bodyBuffer.get(bodyBytes);
-        String body = new String(bodyBytes);
-
-        Map<String, String> properties = messageView.getProperties();
-
-        // Collect all message info into one log entry to avoid interleaving
-        // when multiple threads process messages concurrently
-        StringBuilder messageInfo = new StringBuilder();
-        messageInfo.append("\n--------------------------------\n");
-        messageInfo.append("Consume message successfully\n");
-        messageInfo.append("  MessageId: ").append(messageView.getMessageId()).append("\n");
-        messageInfo.append("  Topic: ").append(messageView.getTopic()).append("\n");
-        messageInfo.append("  Tag: ").append(messageView.getTag().orElse("N/A")).append("\n");
-        messageInfo.append("  Keys: ").append(messageView.getKeys()).append("\n");
-        messageInfo.append("  Body: ").append(body).append("\n");
-        if (properties != null && !properties.isEmpty()) {
-            messageInfo.append("  Properties: ").append(properties).append("\n");
-        }
-        messageInfo.append("--------------------------------");
-        return messageInfo.toString();
     }
 
     public static void main(String[] args) throws ClientException, IOException, InterruptedException {
