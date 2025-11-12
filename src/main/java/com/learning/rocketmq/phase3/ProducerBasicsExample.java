@@ -227,22 +227,37 @@ public class ProducerBasicsExample {
      * - Can set multiple keys
      * - Important for message tracing
      * 
+     * Message Body:
+     * - Contains the actual business data
+     * - Usually JSON, XML, or other structured data
+     * - This is what the consumer processes
+     * 
      * Message Properties:
-     * - Custom key-value pairs
-     * - Used for message filtering and routing
-     * - Can be used by consumers for conditional processing
+     * - Metadata for filtering, routing, and conditional processing
+     * - NOT for business data (business data should be in Body)
+     * - Examples: source, priority, region, version, traceId, environment
+     * - Can be used in SQL92 filter expressions
      */
     private static void demonstrateMessageKeysAndProperties(Producer producer) throws ClientException {
         logger.info("\n=== 6. Demonstrating Message Keys and Properties ===");
         ClientServiceProvider provider = ClientServiceProvider.loadService();
         
-        // Create message with keys and properties
-        Map<String, String> properties = new HashMap<>();
-        properties.put("userId", "12345");
-        properties.put("orderId", "ORDER-67890");
-        properties.put("amount", "99.99");
-        properties.put("currency", "USD");
-        properties.put("timestamp", String.valueOf(System.currentTimeMillis()));
+        // Business data should be in Body (as JSON, XML, etc.)
+        // This is the actual data the consumer needs to process
+        String orderJson = String.format(
+            "{\"orderId\":\"ORDER-67890\",\"userId\":\"12345\",\"amount\":99.99,\"currency\":\"USD\",\"timestamp\":%d}",
+            System.currentTimeMillis()
+        );
+        
+        // Properties are for METADATA only - used for filtering, routing, etc.
+        // Examples: source, priority, region, version, traceId, environment
+        Map<String, String> metadataProperties = new HashMap<>();
+        metadataProperties.put("source", "order-service");
+        metadataProperties.put("priority", "high");
+        metadataProperties.put("region", "us-east");
+        metadataProperties.put("version", "v1.0");
+        metadataProperties.put("traceId", "trace-12345");
+        metadataProperties.put("environment", "production");
         
         Message message = provider.newMessageBuilder()
             .setTopic(TOPIC)
@@ -250,13 +265,15 @@ public class ProducerBasicsExample {
             // Can set multiple keys
             .setKeys("order-key-001", "user-key-12345")
             .setTag("order")
-            .setBody("Order processed successfully".getBytes())
-            // Set custom properties - key-value pairs for message filtering and routing
-            .addProperty("userId", properties.get("userId"))
-            .addProperty("orderId", properties.get("orderId"))
-            .addProperty("amount", properties.get("amount"))
-            .addProperty("currency", properties.get("currency"))
-            .addProperty("timestamp", properties.get("timestamp"))
+            // Body contains BUSINESS DATA (JSON in this example)
+            .setBody(orderJson.getBytes())
+            // Properties contain METADATA only - for filtering, routing, etc.
+            .addProperty("source", metadataProperties.get("source"))
+            .addProperty("priority", metadataProperties.get("priority"))
+            .addProperty("region", metadataProperties.get("region"))
+            .addProperty("version", metadataProperties.get("version"))
+            .addProperty("traceId", metadataProperties.get("traceId"))
+            .addProperty("environment", metadataProperties.get("environment"))
             .build();
         
         try {
@@ -264,10 +281,8 @@ public class ProducerBasicsExample {
             logger.info("✓ Message with keys and properties sent successfully");
             logger.info("  MessageId: {}", sendReceipt.getMessageId());
             logger.info("  Keys: {}", message.getKeys());
-            logger.info("  Properties: {}", properties);
-            logger.info("\nKey concepts:");
-            logger.info("  - Keys: Used for message lookup and duplicate detection");
-            logger.info("  - Properties: Custom metadata for filtering and routing");
+            logger.info("  Body (Business Data): {}", orderJson);
+            logger.info("  Properties (Metadata): {}", metadataProperties);            
         } catch (ClientException e) {
             // 5. Handle send results and exceptions
             logger.error("✗ Failed to send message with keys and properties", e);

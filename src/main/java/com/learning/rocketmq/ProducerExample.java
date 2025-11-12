@@ -1,7 +1,6 @@
 package com.learning.rocketmq;
 
 import com.learning.rocketmq.util.RocketMQConfig;
-import org.apache.rocketmq.client.apis.ClientConfiguration;
 import org.apache.rocketmq.client.apis.ClientException;
 import org.apache.rocketmq.client.apis.ClientServiceProvider;
 import org.apache.rocketmq.client.apis.message.Message;
