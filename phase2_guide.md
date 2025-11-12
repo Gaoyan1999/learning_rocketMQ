@@ -62,7 +62,7 @@ mvn clean compile
 In one terminal, run the producer to send messages:
 
 ```bash
-./run-producer.sh
+./phase2_script/run-producer.sh
 ```
 
 Or manually:
@@ -77,7 +77,7 @@ The producer will send 10 messages to the `TestTopic` topic.
 In another terminal, run the consumer to receive messages:
 
 ```bash
-./run-consumer.sh
+./phase2_script/run-consumer.sh
 ```
 
 Or manually:
