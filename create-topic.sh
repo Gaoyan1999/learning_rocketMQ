@@ -8,7 +8,7 @@ echo "Creating topic: $TOPIC_NAME in cluster: $CLUSTER_NAME"
 
 # Access broker container and create topic
 # Use -i instead of -it for non-interactive terminals
-docker exec rmqbroker sh mqadmin updatetopic -t $TOPIC_NAME -c $CLUSTER_NAME
+docker exec -it rmqbroker sh mqadmin updatetopic -t $TOPIC_NAME -c $CLUSTER_NAME
 
 if [ $? -eq 0 ]; then
     echo "Topic '$TOPIC_NAME' created successfully!"
